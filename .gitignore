@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# WESAD raw dataset
+data/raw/
+data/**/*.pkl
+data/**/*.zip
+data/**/*.7z
+
+# Generated data
+data/processed/
+data/features/
+outputs/
+results/
+
+# macOS
+.DS_Store
