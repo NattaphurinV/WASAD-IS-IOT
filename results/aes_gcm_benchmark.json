@@ -1,0 +1,40 @@
+{
+  "experiment": {
+    "name": "AES-GCM IoMT Security Benchmark",
+    "algorithm": "AES-256-GCM",
+    "key_size_bits": 256,
+    "plaintext_size_bytes": 12,
+    "nonce_size_bytes": 12,
+    "authentication_tag_size_bytes": 16,
+    "warmup_records": 1000,
+    "benchmark_records": 10000,
+    "benchmark_runs": 5
+  },
+  "performance": {
+    "encryption_latency_mean_ms_per_record": 0.00041361418,
+    "encryption_latency_median_ms_per_record": 0.00040517090000000003,
+    "decryption_latency_mean_ms_per_record": 0.00041670832000000003,
+    "decryption_latency_median_ms_per_record": 0.0004088834,
+    "throughput_mean_records_per_second": 820413.6060618517,
+    "throughput_median_records_per_second": 826873.3850129199
+  },
+  "packet_size": {
+    "plaintext_bytes": 12,
+    "ciphertext_bytes": 12,
+    "nonce_bytes": 12,
+    "authentication_tag_bytes": 16,
+    "encrypted_packet_bytes": 40,
+    "cryptographic_overhead_bytes": 28
+  },
+  "integrity": {
+    "tamper_detection": true,
+    "test": "single_bit_flip_in_ciphertext"
+  },
+  "environment": {
+    "python_version": "3.12.14",
+    "cryptography_version": "50.0.2",
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm"
+  }
+}

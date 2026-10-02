@@ -18,7 +18,8 @@ data/**/*.7z
 data/processed/
 data/features/
 outputs/
-results/
+results/*
+!results/aes_gcm_benchmark.json
 
 # macOS
 .DS_Store

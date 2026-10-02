@@ -1,6 +1,19 @@
-# WESAD-IS
+# WASAD-IS-IOT
 
-Proof-of-Concept for stress-related state classification using the WESAD dataset.
+IoMT telemetry and secure transmission proof-of-concept based on the WESAD dataset.
+
+The project focuses on:
+
+- WESAD signal loading and preprocessing
+- IoMT telemetry generation
+- Compact binary payload encoding
+- Payload-size optimization
+- AES-256-GCM encryption
+- Telemetry integrity and security testing
+- Zero Trust access-control prototype
+- Performance evaluation
+
+The current implementation is a research prototype. It does not yet represent a complete production IoMT or Zero Trust system.
 
 ## 1. Requirements
 
@@ -12,85 +25,236 @@ Proof-of-Concept for stress-related state classification using the WESAD dataset
 
 Clone the repository:
 
-    git clone <repository-url>
-    cd wesad-is
+```bash
+git clone https://github.com/NattaphurinV/WASAD-IS-IOT.git
+cd WASAD-IS-IOT
 
-Create virtual environment:
+Create and activate a virtual environment:
 
-    python3 -m venv .venv
-
-Activate virtual environment:
-
-    source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 
 Install dependencies:
 
-    pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
-## 3. Dataset
+Verify dependencies:
+
+python -m pip check
+3. Dataset
 
 This project uses the WESAD dataset.
 
-The raw WESAD dataset is NOT included in this repository because of its size
-and dataset distribution restrictions.
+The raw WESAD dataset is not included in this repository because of its large size and dataset distribution restrictions.
 
-Download/acquire WESAD separately and place it under:
+Place the dataset locally under:
 
-    data/raw/WESAD/
+data/raw/WESAD/
 
 For example:
 
-    data/raw/WESAD/S2/S2.pkl
+data/raw/WESAD/S2/S2.pkl
 
-## 4. Verify Dataset
+The data/raw/ directory is excluded from Git.
 
-Run:
+4. Current IoMT Pipeline
 
-    python scripts/check_wesad.py
+The current prototype uses WESAD S2 to validate the telemetry pipeline.
 
-## 5. Run POC
+Current flow:
 
-Preprocessing:
+WESAD S2
+   |
+   v
+Wrist EDA + Skin Temperature
+   |
+   v
+1 Hz telemetry records
+   |
+   v
+12-byte binary payload
+   |
+   v
+AES-256-GCM
+   |
+   v
+Encrypted packet
 
-    python scripts/preprocess.py
+Current telemetry generation:
 
-Windowing:
+python -m scripts.generate_iot_telemetry
 
-    python scripts/create_windows.py
+Validate the binary payload:
 
-Feature extraction:
+python -m scripts.test_iot_payload
+5. Binary Payload
 
-    python scripts/extract_features.py
+The current prototype uses a fixed 12-byte binary payload.
 
-Training:
+Format:
 
-    python scripts/train.py
+>IBhfB
 
-Evaluation:
+Fields:
 
-    python scripts/evaluate.py
+Field	Size
+Timestamp	4 bytes
+Heart rate	1 byte
+Skin temperature	2 bytes
+EDA	4 bytes
+Status flag	1 byte
+Total	12 bytes
 
-## 6. Current POC
+The current heart-rate value is deterministic mock telemetry used for pipeline testing. It is not calculated as medical-grade heart rate from WESAD BVP.
 
-Current experiment:
+6. AES-256-GCM
 
-- Dataset: WESAD
-- Subject: S2
-- Signals: Wrist EDA + Wrist BVP
-- Target classes:
-  - 1 = Baseline
-  - 2 = Stress
-  - 3 = Amusement
-  - 4 = Meditation
-- Window: 60 seconds
-- Overlap: 50%
-- Step: 30 seconds
-- Windows crossing label boundaries are excluded
+The current cryptographic prototype uses:
 
-These parameters are experimental and may change during development.
+AES-256
+GCM authenticated encryption
+256-bit key
+12-byte nonce
+16-byte authentication tag
 
-## 7. Documentation
+Run the benchmark:
 
-Data inspection and validation:
+python -m scripts.benchmark_aes_gcm
 
-    docs/WESAD_DATA_INSPECTION.md
+The benchmark evaluates encryption/decryption latency, throughput, packet overhead, and ciphertext tamper detection.
+
+7. Security Architecture
+
+The intended architecture is:
+
+IoMT Device
+    |
+    | Device ID + Nonce + Ciphertext + Tag
+    v
+Gateway
+    |
+    v
+Policy Decision Point (PDP)
+    |
+    v
+Policy Enforcement Point (PEP)
+    |
+    +---- Authorized ----> Decrypt + Decode
+    |
+    +---- Unauthorized --> Reject
+
+The Zero Trust components are under active development.
+
+8. Security Tests
+
+Planned security tests include:
+
+Packet tampering
+Unauthorized device
+Replay attack
+Invalid authentication tag
+Valid packet acceptance
+Invalid packet rejection
+
+The current implementation includes AES-GCM ciphertext tamper detection. Replay protection and device authorization are not yet implemented.
+
+9. Experimental Scope
+
+The project evaluates:
+
+Payload
+Payload size
+Serialization/deserialization latency
+Encoding overhead
+Cryptography
+AES-256-GCM encryption latency
+AES-256-GCM decryption latency
+Cryptographic packet overhead
+Integrity protection
+IoMT Security
+Device authentication/authorization
+Tamper detection
+Replay protection
+Zero Trust policy enforcement
+End-to-End Performance
+
+The final experiment will measure:
+
+Telemetry generation
+        |
+        v
+Serialization
+        |
+        v
+Encryption
+        |
+        v
+Packet transmission representation
+        |
+        v
+Authorization
+        |
+        v
+Decryption
+        |
+        v
+Deserialization
+10. Repository Structure
+wesad-is/
+├── data/
+│   ├── raw/                 # Local WESAD dataset, not tracked
+│   ├── processed/           # Generated data, not tracked
+│   └── features/            # Generated features, not tracked
+├── docs/
+│   ├── experiment_notes.md
+│   ├── IOT_PAYLOAD.md
+│   └── ...
+├── scripts/
+│   ├── generate_iot_telemetry.py
+│   ├── test_iot_payload.py
+│   ├── test_signals.py
+│   └── benchmark_aes_gcm.py
+├── src/
+│   ├── preprocessing/
+│   └── iot_payload.py
+├── archive/
+│   └── ml_pipeline/
+├── requirements.txt
+└── README.md
+11. Current Status
+Component	Status
+WESAD loader	Implemented
+EDA/TEMP preprocessing	Implemented
+IoMT telemetry generation	Implemented
+12-byte binary payload	Implemented
+AES-256-GCM	Implemented
+AES benchmark	Implemented
+Payload optimization comparison	In progress
+Device identity	Planned
+Gateway	Planned
+PDP/PEP	Planned
+Zero Trust enforcement	Planned
+Replay protection	Planned
+Unauthorized-device test	Planned
+End-to-end benchmark	Planned
+12. Important Data Policy
+
+Do not commit the WESAD dataset or generated large data files.
+
+Before committing:
+
+git status
+
+Verify that raw and generated data are not staged:
+
+git status --short
+
+The repository .gitignore excludes:
+
+data/raw/
+data/processed/
+data/features/
+results/
+outputs/
+
+Small reproducible documentation and source-code artifacts may be committed normally.
